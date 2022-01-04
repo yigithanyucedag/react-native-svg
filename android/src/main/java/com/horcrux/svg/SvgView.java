@@ -66,6 +66,7 @@ public class SvgView extends ReactViewGroup implements ReactCompoundView, ReactC
     }
 
     private @Nullable Bitmap mBitmap;
+    private boolean mRemovalTransitionStarted = false;
 
     public SvgView(ReactContext reactContext) {
         super(reactContext);
@@ -90,10 +91,26 @@ public class SvgView extends ReactViewGroup implements ReactCompoundView, ReactC
             ((VirtualView) parent).getSvgView().invalidate();
             return;
         }
-        if (mBitmap != null) {
-            mBitmap.recycle();
+         if(!mRemovalTransitionStarted){
+            if (mBitmap != null) {
+                mBitmap.recycle();
+            }
+            mBitmap = null;
         }
-        mBitmap = null;
+    }
+
+    @Override
+    public void startViewTransition(View view) {
+        super.startViewTransition(view);
+        mRemovalTransitionStarted = true;
+    }
+
+    @Override
+    public void endViewTransition(View view) {
+        super.endViewTransition(view);
+        if (mRemovalTransitionStarted) {
+            mRemovalTransitionStarted = false;
+        }
     }
 
     @Override
